@@ -6,27 +6,26 @@
  * Author: Jay Traband
  */
 
-(function (definition) {
+(function (global, definition) {
+    var def = function(){ return definition(global); };
 
     // CommonJS
     if (typeof exports === "object" && typeof module === "object") {
-        module.exports = definition();
+        module.exports = def();
         // RequireJS
     } else if (typeof define === "function" && define["amd"]) {
-        define(definition);
+        define(def);
         // <script>
     } else {
-        breeze = definition();
+        breeze = def();
     }
 
-})(function () {  
+})(this, function (global) {
+    "use strict"; 
     var breeze = {
         version: "1.4.12",
         metadataVersion: "1.0.5"
     };
-	"use strict";
-
-
     ;/**
  @module core
  **/
@@ -354,7 +353,7 @@ function __requireLib(libNames, errMessage) {
 
 // Returns the 'libName' module if loaded or else returns undefined
 function __requireLibCore(libName) {
-    var window = this.window;
+    var window = global.window;
     if (!window) return; // Must run in a browser. Todo: add commonjs support
 
     // get library from browser globals if we can
@@ -14867,8 +14866,8 @@ if (ko) {
     breeze.config.initializeAdapterInstance("modelLibrary", "backingStore");
 }
 
-if (this.window) {
-    this.window.breeze = breeze;
+if (global.window) {
+    global.window.breeze = breeze;
 }
 
 

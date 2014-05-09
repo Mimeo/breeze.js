@@ -15,6 +15,30 @@
     var MetadataStore = breeze.MetadataStore;
     var JsonResultsAdapter = breeze.JsonResultsAdapter;
     var DataProperty = breeze.DataProperty;
+
+    var ajaxImpl = breeze.config.getAdapterInstance('ajax');
+
+    var oDataAjaxImplHttpClient = {
+        request: function (request, success, error) {
+            return ajaxImpl.ajax({
+                url: request.requestUri,
+                type: request.method,
+                headers: request.headers,
+                success: function (httpResponse) {
+                    success({
+                        statusCode: httpResponse.status,
+                        statusText: httpResponse.statusText,
+                        headers: httpResponse.getHeaders(),
+                        body: httpResponse.data
+                    });
+                },
+                error: function (error) {
+                    error({
+                    });
+                }
+            });
+        }
+    };
     
     var OData;
     
@@ -26,7 +50,6 @@
 
     fn.initialize = function () {
         OData = core.requireLib("OData", "Needed to support remote OData services");
-        OData.jsonHandler.recognizeDates = true;
     };
     
     
@@ -49,8 +72,8 @@
             },
             function (error) {
                 return deferred.reject(createError(error, url));
-            }
-        );
+            },
+            null, oDataAjaxImplHttpClient);
         return deferred.promise;
     };
     
@@ -96,8 +119,7 @@
                 err.message = "Metadata query failed for: " + url + "; " + (err.message || "");
                 return deferred.reject(err);
             },
-            OData.metadataHandler
-        );
+            OData.metadataHandler, oDataAjaxImplHttpClient);
 
         return deferred.promise;
 
@@ -157,7 +179,7 @@
             return deferred.resolve(saveResult);
         }, function (err) {
             return deferred.reject(createError(err, url));
-        }, OData.batchHandler);
+        }, OData.batchHandler, oDataAjaxImplHttpClient);
 
         return deferred.promise;
 

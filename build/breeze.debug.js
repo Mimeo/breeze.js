@@ -21,7 +21,7 @@
     }
 
 })(this, function (global) {
-    "use strict";
+    "use strict"; 
     var breeze = {
         version: "1.4.12",
         metadataVersion: "1.0.5"
@@ -14867,7 +14867,7 @@ breeze.SaveOptions= SaveOptions;
         define(["breeze"], factory);
     }
 }(function(breeze) {
-    "use strict"; 
+    "use strict";
     var core = breeze.core;
     
     var httpService;
@@ -15029,7 +15029,7 @@ breeze.SaveOptions= SaveOptions;
         define(["breeze"], factory);
     }
 }(function(breeze) {
-    "use strict";     
+    "use strict";
     var core = breeze.core;
     
     var jQuery;
@@ -15143,12 +15143,36 @@ breeze.SaveOptions= SaveOptions;
         define(["breeze"], factory);
     }
 }(function(breeze) {
-    "use strict"; 
+    "use strict";    
     var core = breeze.core;
  
     var MetadataStore = breeze.MetadataStore;
     var JsonResultsAdapter = breeze.JsonResultsAdapter;
     var DataProperty = breeze.DataProperty;
+
+    var ajaxImpl = breeze.config.getAdapterInstance('ajax');
+
+    var oDataAjaxImplHttpClient = {
+        request: function (request, success, error) {
+            return ajaxImpl.ajax({
+                url: request.requestUri,
+                type: request.method,
+                headers: request.headers,
+                success: function (httpResponse) {
+                    success({
+                        statusCode: httpResponse.status,
+                        statusText: httpResponse.statusText,
+                        headers: httpResponse.getHeaders(),
+                        body: httpResponse.data
+                    });
+                },
+                error: function (error) {
+                    error({
+                    });
+                }
+            });
+        }
+    };
     
     var OData;
     
@@ -15160,7 +15184,6 @@ breeze.SaveOptions= SaveOptions;
 
     fn.initialize = function () {
         OData = core.requireLib("OData", "Needed to support remote OData services");
-        OData.jsonHandler.recognizeDates = true;
     };
     
     
@@ -15183,8 +15206,8 @@ breeze.SaveOptions= SaveOptions;
             },
             function (error) {
                 return deferred.reject(createError(error, url));
-            }
-        );
+            },
+            null, oDataAjaxImplHttpClient);
         return deferred.promise;
     };
     
@@ -15230,8 +15253,7 @@ breeze.SaveOptions= SaveOptions;
                 err.message = "Metadata query failed for: " + url + "; " + (err.message || "");
                 return deferred.reject(err);
             },
-            OData.metadataHandler
-        );
+            OData.metadataHandler, oDataAjaxImplHttpClient);
 
         return deferred.promise;
 
@@ -15291,7 +15313,7 @@ breeze.SaveOptions= SaveOptions;
             return deferred.resolve(saveResult);
         }, function (err) {
             return deferred.reject(createError(err, url));
-        }, OData.batchHandler);
+        }, OData.batchHandler, oDataAjaxImplHttpClient);
 
         return deferred.promise;
 
@@ -15474,7 +15496,7 @@ breeze.SaveOptions= SaveOptions;
         define(["breeze"], factory);
     }
 }(function(breeze) {
-    "use strict";     
+    "use strict";    
     var core = breeze.core;
 
     var MetadataStore = breeze.MetadataStore;
@@ -15554,8 +15576,7 @@ breeze.SaveOptions= SaveOptions;
     
     breeze.config.registerAdapter("dataService", ctor);
 
-}));
-(function (factory) {
+}));;(function (factory) {
     if (breeze) {
         factory(breeze);
     } else if (typeof require === "function" && typeof exports === "object" && typeof module === "object") {
@@ -15566,7 +15587,7 @@ breeze.SaveOptions= SaveOptions;
         define(["breeze"], factory);
     }
 }(function(breeze) {
-    "use strict";     
+    "use strict";   
     var core = breeze.core;
     var ComplexAspect = breeze.ComplexAspect;
 
@@ -15759,7 +15780,7 @@ breeze.SaveOptions= SaveOptions;
     // private methods
 
 }));
-(function (factory) {
+;(function (factory) {
     if (breeze) {
         factory(breeze);
     } else if (typeof require === "function" && typeof exports === "object" && typeof module === "object") {
@@ -15770,7 +15791,7 @@ breeze.SaveOptions= SaveOptions;
         define(["breeze"], factory);
     }
 }(function(breeze) {
-    "use strict";     
+    "use strict";  
     var core = breeze.core;
 
     var ctor = function() {
@@ -16041,7 +16062,7 @@ breeze.SaveOptions= SaveOptions;
     breeze.config.registerAdapter("modelLibrary", ctor);
 
 }));
-(function (factory) {
+;(function (factory) {
     if (breeze) {
         factory(breeze);
     } else if (typeof require === "function" && typeof exports === "object" && typeof module === "object") {
@@ -16052,7 +16073,7 @@ breeze.SaveOptions= SaveOptions;
         define(["breeze"], factory);
     }
 }(function(breeze) {
-    "use strict";     
+    "use strict";  
     var core = breeze.core;
     var ko;
 
