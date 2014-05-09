@@ -18,22 +18,30 @@
 
     var ajaxImpl = breeze.config.getAdapterInstance('ajax');
 
+    function translateAjaxImplResponseToHttpClientResponse(ajaxImplResponse) {
+        return {
+            requestUri: ajaxImplResponse.url,
+            statusCode: ajaxImplResponse.status,
+            statusText: ajaxImplResponse.statusText,
+            headers: ajaxImplResponse.getHeaders(),
+            body: ajaxImplResponse.data
+        };
+    };
+
     var oDataAjaxImplHttpClient = {
         request: function (request, success, error) {
             return ajaxImpl.ajax({
                 url: request.requestUri,
                 type: request.method,
                 headers: request.headers,
-                success: function (httpResponse) {
-                    success({
-                        statusCode: httpResponse.status,
-                        statusText: httpResponse.statusText,
-                        headers: httpResponse.getHeaders(),
-                        body: httpResponse.data
-                    });
+                success: function (response) {
+                    success(translateAjaxImplResponseToHttpClientResponse(response));
                 },
-                error: function (error) {
+                error: function (response) {
                     error({
+                        message: response.statusText,
+                        request: request,
+                        response: translateAjaxImplResponseToHttpClientResponse(response)
                     });
                 }
             });
